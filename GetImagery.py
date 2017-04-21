@@ -1,5 +1,3 @@
-import pandas as pd
-import json
 import requests
 from pyproj import Proj, transform
 import matplotlib.pyplot as plt
