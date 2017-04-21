@@ -23,11 +23,12 @@ def GetMySatImgryURL(x,y):
 	diffy = y * 0.0003964062069618698
 	x1,y1,x2,y2 = x - diffx, y - diffy, x + diffx, y + diffy
 	bbox = "bbox={0},{1},{2},{3}".format(x1,y1,x2,y2)
+	# Get satellite imagery from Copernicus
 	url = 'http://copernicus.discomap.eea.europa.eu/arcgis/rest/services/GioLand/VeryHighResolution2012/MapServer/export?dpi=96&transparent=true&format=png8&{0}&bboxSR=3035&imageSR=3035&size=1908%2C544&f=image'.format(bbox)
 	return url
 
 def PlotImageFromURL(url):
-	# Get satellite imagery from Copernicus
+	# Load image from url
 	imgry = io.imread(url)
 	plt.imshow(imgry)
 	plt.show()
