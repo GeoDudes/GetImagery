@@ -7,7 +7,6 @@ from skimage import io
 
 # Get your IP address according to the IP 
 coords = requests.get('https://freegeoip.net/csv/').text
-place = coords.split(',')[-4]
 lat, lon = coords.split(',')[-3:-1]          
 lat, lon = float(lat), float(lon)
 
