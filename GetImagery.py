@@ -3,7 +3,7 @@ from pyproj import Proj, transform
 import matplotlib.pyplot as plt
 from skimage import io
 
-# Get your IP address according to the IP 
+# Get your coordinates according to your IP address
 coords = requests.get('https://freegeoip.net/csv/').text
 lat, lon = coords.split(',')[-3:-1]          
 lat, lon = float(lat), float(lon)
