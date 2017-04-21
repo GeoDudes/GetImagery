@@ -21,6 +21,6 @@ x1,y1,x2,y2 = x - diffx, y - diffy, x + diffx, y + diffy
 bbox = "bbox={0},{1},{2},{3}".format(x1,y1,x2,y2)
 
 # Get satellite imagery from Copernicus
-imgry = io.imread('http://copernicus.discomap.eea.europa.eu/arcgis/rest/services/GioLand/VeryHighResolution2012/MapServer/export?dpi=96&transparent=true&format=png8&bbox={0}%2C{1}%2C{2}%2C{3}&bboxSR=3035&imageSR=3035&size=1908%2C544&f=image'.format(x-1000,y-1000,x+400,y+400))
+imgry = io.imread('http://copernicus.discomap.eea.europa.eu/arcgis/rest/services/GioLand/VeryHighResolution2012/MapServer/export?dpi=96&transparent=true&format=png8&{0}&bboxSR=3035&imageSR=3035&size=1908%2C544&f=image'.format(bbox))
 plt.imshow(imgry)
 plt.show()
