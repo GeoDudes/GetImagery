@@ -35,7 +35,7 @@ PlotImageFromURL(url):
 
 main():
 	lat,lon = GetMyCoords()
-	x,y = Reproject(lon, lat, "epsg:4326", "epsg:3035")
+	x,y = ReprojectPoint(lon, lat, "epsg:4326", "epsg:3035")
 	url = GetMySatImgrURL(x,y)
 	PlotImageFromURL(url)
 
