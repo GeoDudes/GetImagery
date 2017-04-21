@@ -2,6 +2,8 @@ import pandas as pd
 import json
 import requests
 from pyproj import Proj, transform
+import matplotlib.pyplot as plt
+from skimage import io
 
 # Get your IP address according to the IP 
 coords = requests.get('https://freegeoip.net/csv/').text
