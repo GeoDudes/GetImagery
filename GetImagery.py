@@ -3,6 +3,7 @@ from pyproj import Proj, transform
 import matplotlib.pyplot as plt
 from skimage import io
 import georasters as gr
+import pandas as pd
 
 
 def GetMyCoords():
@@ -42,13 +43,37 @@ def img2df(url):
 	df = data.to_pandas()
 	return df
 
+def dfKernel(df, size, function):
+	if size % 2 == 0:
+		print("Only uneven kernel size is allowed")
+		return 
+
+	Xmax = int(max(df['x'])) - (size-1)//2
+	Ymax = int(max(df['y'])) - (size-1)//2
+	df.set_index('y')
+	output = pd.DataFrame(columns=['x','y','value'])
+	for y in range(Ymax):
+		rows = df.loc[df['y'].isin(range(y, y+size))]
+		for x in range(Xmax):
+			kernel = rows.loc[df['x'].isin(range(x, x+size))]
+			print(kernel)
+			output['x'] = x
+			output['y'] = y 
+			output['value'] = function(kernel)
+	return
+
+def avg(lst):
+	pass
+	return 
+
 def main():
 	lat,lon = GetMyCoords()
 	x,y = ReprojectPoint(lon, lat, "epsg:4326", "epsg:3035")
 	url = GetMySatImgryURL(x,y)
 	df = img2df(url)
-	print(df.head)
-	PlotImageFromURL(url)
+	# print(df.head)
+	# PlotImageFromURL(url)
+	dfKernel(df,3,avg)
 	return
 
 if __name__ == '__main__':
