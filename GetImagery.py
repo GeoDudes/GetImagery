@@ -10,7 +10,7 @@ import numpy as np
 def GetMyCoords():
 	# Get your coordinates according to your IP address
 	coords = requests.get('https://freegeoip.net/csv/').text
-	lat, lon = coords.split(',')[-3:-1]          
+	lat, lon = coords.split(',')[-3:-1]			 
 	lat, lon = float(lat), float(lon)
 	return lat, lon
 
@@ -45,13 +45,17 @@ def PlotImage(img):
 	plt.axis("off")
 	plt.show()
 	return
+
+def to_rgb1(im):
+    # I think this will be slow
+    w, h = im.shape
+    ret = np.empty((w, h, 3), dtype=np.uint8)
+    ret[:, :, 0] = im
+    ret[:, :, 1] = im
+    ret[:, :, 2] = im
+    return ret
 	
-def analyzeImgArray(imgArray):
-	# print(type(imgArray))
-	# imgArray_gray = np.dot(imgArray[...,:3], [0.299, 0.587, 0.114])
-	# plt.imshow(imgArray_gray, cmap=plt.cm.gray, vmin=30, vmax=200)
-	# plt.contour(imgArray_gray, [50, 150])
-	plt.imshow(imgArray)
+def sobel(imgArray):
 	n=100
 	sobel_x = np.c_[
 		[-1,0,1],
@@ -72,30 +76,46 @@ def analyzeImgArray(imgArray):
 		ims.append(np.sqrt(sx*sx + sy*sy))
 
 	im_conv = np.stack(ims, axis=2).astype("uint8")
+	return im_conv
+	
+def analyzeImgArray(imgArray):
+	# print(type(imgArray))
+	# imgArray_gray = np.dot(imgArray[...,:3], [0.299, 0.587, 0.114])
+	# plt.imshow(imgArray_gray, cmap=plt.cm.gray, vmin=30, vmax=200)
+	# plt.contour(imgArray_gray, [50, 150])
+	#plt.imshow(imgArray)
+	
+	im_conv = sobel(imgArray)
+	im = np.dot(im_conv[...,:3], [0.299, 0.587, 0.114])
+	im = to_rgb1(im)
+	im = ndimage.median_filter(im, 3)
+	im[im<50] = 0
+	
+	plti(im)
 
-	plti(im_conv)
 	plt.axis("off")
 	plt.show()
 	
 	return imgArray
 	
 def plti(im, h=8, **kwargs):
-    """
-    Helper function to plot an image. By: http://www.degeneratestate.org/posts/2016/Oct/23/image-processing-with-numpy/
-    """
-    y = im.shape[0]
-    x = im.shape[1]
-    w = (y/x) * h
-    plt.figure(figsize=(w,h))
-    plt.imshow(im, interpolation="none", **kwargs)
-    plt.axis('off')
+	"""
+	Helper function to plot an image. By: http://www.degeneratestate.org/posts/2016/Oct/23/image-processing-with-numpy/
+	"""
+	y = im.shape[0]
+	x = im.shape[1]
+	w = (y/x) * h
+	plt.figure(figsize=(w,h))
+	plt.imshow(im, interpolation="none", **kwargs)
+	plt.axis('off')
+	return
 	
 def main():
 	lat,lon = GetMyCoords()
 	x,y = ReprojectPoint(lon, lat, "epsg:4326", "epsg:3035")
 	img, imgArray = GetSatImgry(x,y)
 	# PlotImage(img)
-	analyzeImgArray(imgArray)
+	imgArray = analyzeImgArray(imgArray)
 	
 	return
 
