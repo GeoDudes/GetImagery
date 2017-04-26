@@ -1,9 +1,10 @@
 import requests
 from pyproj import Proj, transform
 import matplotlib.pyplot as plt
-from scipy import ndimage
+from scipy import ndimage, signal
 from io import BytesIO
 from skimage import io
+import numpy as np
 
 
 def GetMyCoords():
@@ -32,7 +33,9 @@ def GetSatImgry(x,y):
 	for chunk in r.iter_content(1024):
 		img.write(chunk)
 		
+	# imgArray = ndimage.imread(img, mode='RGB')
 	imgArray = ndimage.imread(img, mode='RGB')
+	
 	
 	return img, imgArray
 
@@ -44,17 +47,54 @@ def PlotImage(img):
 	return
 	
 def analyzeImgArray(imgArray):
-	print(type(imgArray))
-	
-	
+	# print(type(imgArray))
+	# imgArray_gray = np.dot(imgArray[...,:3], [0.299, 0.587, 0.114])
+	# plt.imshow(imgArray_gray, cmap=plt.cm.gray, vmin=30, vmax=200)
+	# plt.contour(imgArray_gray, [50, 150])
+	plt.imshow(imgArray)
+	n=100
+	sobel_x = np.c_[
+		[-1,0,1],
+		[-2,0,2],
+		[-1,0,1]
+	]
+
+	sobel_y = np.c_[
+		[1,2,1],
+		[0,0,0],
+		[-1,-2,-1]
+	]
+
+	ims = []
+	for d in range(3):
+		sx = signal.convolve2d(imgArray[:,:,d], sobel_x, mode="same", boundary="symm")
+		sy = signal.convolve2d(imgArray[:,:,d], sobel_y, mode="same", boundary="symm")
+		ims.append(np.sqrt(sx*sx + sy*sy))
+
+	im_conv = np.stack(ims, axis=2).astype("uint8")
+
+	plti(im_conv)
+	plt.axis("off")
+	plt.show()
 	
 	return imgArray
+	
+def plti(im, h=8, **kwargs):
+    """
+    Helper function to plot an image. By: http://www.degeneratestate.org/posts/2016/Oct/23/image-processing-with-numpy/
+    """
+    y = im.shape[0]
+    x = im.shape[1]
+    w = (y/x) * h
+    plt.figure(figsize=(w,h))
+    plt.imshow(im, interpolation="none", **kwargs)
+    plt.axis('off')
 	
 def main():
 	lat,lon = GetMyCoords()
 	x,y = ReprojectPoint(lon, lat, "epsg:4326", "epsg:3035")
 	img, imgArray = GetSatImgry(x,y)
-	PlotImage(img)
+	# PlotImage(img)
 	analyzeImgArray(imgArray)
 	
 	return
